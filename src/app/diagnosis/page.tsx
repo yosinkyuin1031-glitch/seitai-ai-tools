@@ -69,7 +69,7 @@ const RESULTS: ResultType[] = [
   {
     type: 'A',
     name: '脳神経疲労タイプ',
-    emoji: '🧠',
+    emoji: '\u{1F9E0}',
     description: '脳や神経系に負担がかかりやすいタイプです。デジタルデバイスの使いすぎや情報過多によって、脳が休まらない状態が続いている可能性があります。',
     advice: 'デジタルデトックスの時間を作り、自然の中で過ごす時間を増やしましょう。寝る前の1時間はスマホを見ないようにすると効果的です。',
     treatment: '神経整体（頭蓋骨調整・自律神経バランス調整）がおすすめです。脳への血流を改善し、神経の緊張を和らげます。',
@@ -77,7 +77,7 @@ const RESULTS: ResultType[] = [
   {
     type: 'B',
     name: '内臓疲労タイプ',
-    emoji: '🫀',
+    emoji: '\u{1FAC0}',
     description: '内臓の機能が低下しやすいタイプです。食生活の乱れやストレスにより、消化器系や循環器系に負担がかかっています。',
     advice: '温かい食事を心がけ、腹八分目を意識しましょう。朝一杯の白湯は内臓を温め、機能を活性化させます。',
     treatment: '内臓調整・自律神経バランス調整がおすすめです。内臓の位置を整え、血流とリンパの流れを改善します。',
@@ -85,7 +85,7 @@ const RESULTS: ResultType[] = [
   {
     type: 'C',
     name: '筋骨格系ストレスタイプ',
-    emoji: '💪',
+    emoji: '\u{1F4AA}',
     description: '姿勢の歪みや筋肉の緊張が蓄積しやすいタイプです。デスクワークや運動不足により、体のバランスが崩れています。',
     advice: '1時間に1回は立ち上がってストレッチを行いましょう。特に胸を開く動作と股関節のストレッチが効果的です。',
     treatment: '骨格調整・筋膜リリースがおすすめです。歪みを整え、筋肉の緊張をほぐして正しい姿勢を取り戻します。',
@@ -93,7 +93,7 @@ const RESULTS: ResultType[] = [
   {
     type: 'D',
     name: '自律神経乱れタイプ',
-    emoji: '⚡',
+    emoji: '\u{26A1}',
     description: '交感神経と副交感神経のバランスが乱れやすいタイプです。ストレスや生活リズムの乱れにより、自律神経が正常に機能しにくくなっています。',
     advice: '規則正しい生活リズムを心がけましょう。特に「決まった時間に起きる」ことが最も重要です。深呼吸（4秒吸って8秒吐く）を1日3回行うと効果的です。',
     treatment: '自律神経調整・睡眠改善プログラムがおすすめです。神経のバランスを整え、質の高い睡眠を取り戻します。',
@@ -113,7 +113,6 @@ export default function DiagnosisPage() {
     setScores(newScores)
 
     if (step >= QUESTIONS.length) {
-      // Find result
       const maxType = Object.entries(newScores).sort(([, a], [, b]) => b - a)[0][0]
       setResultType(RESULTS.find(r => r.type === maxType) || RESULTS[0])
       setStep(QUESTIONS.length + 1)
@@ -132,7 +131,7 @@ export default function DiagnosisPage() {
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <header className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/" className="text-white/70 hover:text-white">←</Link>
+          <Link href="/" className="text-white/70 hover:text-white" aria-label="ホームに戻る">&larr;</Link>
           <h1 className="font-bold">神経タイプ診断</h1>
         </div>
       </header>
@@ -141,13 +140,14 @@ export default function DiagnosisPage() {
         {/* Start */}
         {step === 0 && (
           <div className="text-center space-y-6">
-            <div className="text-6xl">🧠</div>
+            <div className="text-6xl" aria-hidden="true">{'\u{1F9E0}'}</div>
             <h2 className="text-2xl font-bold">あなたの神経タイプ診断</h2>
             <p className="text-gray-600 leading-relaxed">
               5つの質問に答えるだけで、あなたの体の不調パターンと最適なケア方法がわかります。
             </p>
             <button onClick={() => setStep(1)}
-              className="w-full py-4 bg-purple-600 text-white rounded-xl font-bold text-lg">
+              aria-label="診断をスタートする"
+              className="w-full py-4 bg-purple-600 text-white rounded-xl font-bold text-lg hover:bg-purple-700 transition">
               診断スタート
             </button>
             <p className="text-xs text-gray-400">所要時間: 約1分</p>
@@ -157,7 +157,7 @@ export default function DiagnosisPage() {
         {/* Questions */}
         {step >= 1 && step <= QUESTIONS.length && (
           <div className="space-y-6">
-            <div className="flex gap-1">
+            <div className="flex gap-1" role="progressbar" aria-valuenow={step} aria-valuemin={1} aria-valuemax={QUESTIONS.length} aria-label="診断の進捗">
               {QUESTIONS.map((_, i) => (
                 <div key={i}
                   className={`flex-1 h-1.5 rounded-full ${i < step ? 'bg-purple-600' : 'bg-gray-200'}`} />
@@ -165,9 +165,10 @@ export default function DiagnosisPage() {
             </div>
             <p className="text-sm text-gray-500">質問 {step} / {QUESTIONS.length}</p>
             <h2 className="text-lg font-bold">{QUESTIONS[step - 1].text}</h2>
-            <div className="space-y-3">
+            <div className="space-y-3" role="group" aria-label="選択肢">
               {QUESTIONS[step - 1].choices.map((choice, i) => (
                 <button key={i} onClick={() => handleAnswer(choice)}
+                  aria-label={`選択肢${i + 1}: ${choice.text}`}
                   className="w-full text-left p-4 bg-white rounded-xl shadow-sm hover:shadow-md hover:ring-2 hover:ring-purple-300 transition text-sm">
                   {choice.text}
                 </button>
@@ -181,7 +182,7 @@ export default function DiagnosisPage() {
           <div className="space-y-6">
             <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
               <p className="text-sm text-purple-600 font-medium mb-2">あなたのタイプは...</p>
-              <div className="text-5xl mb-3">{resultType.emoji}</div>
+              <div className="text-5xl mb-3" aria-hidden="true">{resultType.emoji}</div>
               <h2 className="text-2xl font-bold text-gray-800 mb-4">{resultType.name}</h2>
               <p className="text-sm text-gray-600 leading-relaxed">{resultType.description}</p>
             </div>
@@ -202,13 +203,15 @@ export default function DiagnosisPage() {
                 あなたの症状に合わせたオーダーメイド施術をご提供します
               </p>
               <a href="tel:0312345678"
-                className="inline-block bg-white text-purple-600 px-6 py-2 rounded-lg font-bold text-sm">
+                aria-label="電話で予約する: 03-1234-5678"
+                className="inline-block bg-white text-purple-600 px-6 py-2 rounded-lg font-bold text-sm hover:bg-purple-50 transition">
                 電話で予約する
               </a>
             </div>
 
             <button onClick={restart}
-              className="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium">
+              aria-label="診断をもう一度やり直す"
+              className="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition">
               もう一度診断する
             </button>
           </div>
