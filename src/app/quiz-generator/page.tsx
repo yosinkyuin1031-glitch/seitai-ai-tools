@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { QuizGeneratingSkeleton } from '@/components/Skeleton'
 import { showToast } from '@/components/Toast'
+import { saveContent } from '@/lib/contentApi'
 
 interface QuizChoice {
   text: string
@@ -50,6 +51,24 @@ export default function QuizGeneratorPage() {
   const [quiz, setQuiz] = useState<GeneratedQuiz | null>(null)
   const [error, setError] = useState('')
   const [validationError, setValidationError] = useState('')
+
+  const [saved, setSaved] = useState(false)
+
+  const handleSaveQuiz = async () => {
+    if (!quiz) return
+    try {
+      await saveContent({
+        tool_type: 'quiz',
+        title: quiz.title,
+        input_data: { theme, questionCount, style },
+        output_data: quiz as unknown as Record<string, unknown>,
+      })
+      setSaved(true)
+      showToast('履歴に保存しました')
+    } catch {
+      showToast('保存に失敗しました', 'error')
+    }
+  }
 
   // Preview state
   const [previewStep, setPreviewStep] = useState(0)
@@ -210,11 +229,16 @@ export default function QuizGeneratorPage() {
           <div className="bg-white rounded-xl shadow-sm p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-lg">{quiz.title}</h2>
-              <button onClick={copyJSON}
-                aria-label="JSON形式でコピー"
-                className="px-3 py-1.5 rounded-lg text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
-                JSONコピー
-              </button>
+              <div className="flex gap-2">
+                <button onClick={handleSaveQuiz} disabled={saved}
+                  className={`px-3 py-1.5 rounded-lg text-xs transition ${saved ? 'bg-green-100 text-green-600' : 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'}`}>
+                  {saved ? '✓ 保存済み' : '💾 保存'}
+                </button>
+                <button onClick={copyJSON}
+                  className="px-3 py-1.5 rounded-lg text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                  JSONコピー
+                </button>
+              </div>
             </div>
             <p className="text-sm text-gray-500">{quiz.description}</p>
 

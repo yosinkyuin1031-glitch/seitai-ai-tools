@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { BlogGeneratingSkeleton } from '@/components/Skeleton'
 import { showToast } from '@/components/Toast'
+import { saveContent } from '@/lib/contentApi'
 
 interface BlogResult {
   title: string
@@ -62,6 +63,8 @@ export default function BlogPage() {
     setGenerating(false)
   }
 
+  const [saved, setSaved] = useState(false)
+
   const copyHTML = async () => {
     if (!result) return
     try {
@@ -69,6 +72,22 @@ export default function BlogPage() {
       showToast('HTMLをコピーしました')
     } catch {
       showToast('コピーに失敗しました', 'error')
+    }
+  }
+
+  const handleSave = async () => {
+    if (!result) return
+    try {
+      await saveContent({
+        tool_type: 'blog',
+        title: result.title,
+        input_data: { keyword, mode, tone, length },
+        output_data: result as unknown as Record<string, unknown>,
+      })
+      setSaved(true)
+      showToast('履歴に保存しました')
+    } catch {
+      showToast('保存に失敗しました', 'error')
     }
   }
 
@@ -178,11 +197,16 @@ export default function BlogPage() {
             <div className="bg-white rounded-xl shadow-sm p-5">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-bold text-lg">{result.title}</h2>
-                <button onClick={copyHTML}
-                  aria-label="HTML形式でコピー"
-                  className="px-3 py-1.5 rounded-lg text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
-                  HTMLコピー
-                </button>
+                <div className="flex gap-2">
+                  <button onClick={handleSave} disabled={saved}
+                    className={`px-3 py-1.5 rounded-lg text-xs transition ${saved ? 'bg-green-100 text-green-600' : 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'}`}>
+                    {saved ? '✓ 保存済み' : '💾 保存'}
+                  </button>
+                  <button onClick={copyHTML}
+                    className="px-3 py-1.5 rounded-lg text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                    HTMLコピー
+                  </button>
+                </div>
               </div>
               <p className="text-sm text-gray-500 mb-3">{result.metaDescription}</p>
               <div className="flex flex-wrap gap-1 mb-4" aria-label="関連キーワード">
